@@ -1,0 +1,37 @@
+"""
+Prompt templates for telemetry natural-language queries.
+"""
+
+SYSTEM_PROMPT = (
+    "You are an AI assistant analyzing fleet telemetry data from autonomous vehicles "
+    "with ROS2 and NVIDIA DRIVE sensors. The data includes IMU (accelerometer, gyroscope), "
+    "LiDAR point cloud stats, CAN bus (vehicle speed, brake pressure, steering angle, "
+    "throttle), GPS, and camera metadata. Answer questions about the provided telemetry "
+    "concisely and accurately. If the data does not contain enough information to answer, "
+    "say so."
+)
+
+
+def format_user_query(
+    user_query: str,
+    data_context: str,
+    max_context_chars: int = 8000,
+) -> str:
+    """
+    Format a user query with telemetry data context for the LLM.
+
+    Args:
+        user_query: Natural language question.
+        data_context: String representation of retrieved data (e.g. CSV snippet, stats).
+        max_context_chars: Truncate context if longer.
+
+    Returns:
+        Formatted user message.
+    """
+    if len(data_context) > max_context_chars:
+        data_context = data_context[:max_context_chars] + "\n... (truncated)"
+    return (
+        f"Telemetry data:\n{data_context}\n\n"
+        f"Question: {user_query}\n\n"
+        "Provide a concise answer based on the data above."
+    )

@@ -1,0 +1,15 @@
+# NVIDIA NIM Helm values. Mirrors Course 1 nim_custom_value.yaml.
+# Deploy with: helm install my-nim nim-llm-1.3.0.tgz -f nim_values.yaml --namespace nim
+
+image:
+  repository: "nvcr.io/nim/meta/llama3-8b-instruct"
+  tag: 1.0.0
+
+model:
+  ngcAPISecret: ngc-api
+
+persistence:
+  enabled: true
+
+imagePullSecrets:
+  - name: registry-secret

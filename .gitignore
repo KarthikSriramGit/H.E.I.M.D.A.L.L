@@ -1,0 +1,21 @@
+# Local folder - keep in repo directory but do not track contents
+GTC 2026/
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Environment
+.env
+
+# Data artifacts
+data/synthetic/*.parquet
+data/synthetic/*.csv
+
+# Notebooks
+notebooks/.ipynb_checkpoints/

@@ -1,0 +1,46 @@
+# Project Insight: Telemetry-to-Insight Pipeline Configuration
+
+dataset:
+  synthetic_path: data/synthetic
+  parquet_filename: fleet_telemetry.parquet
+  csv_filename: fleet_telemetry.csv
+  default_row_count: 5000000
+  large_row_count: 50000000
+  vehicle_count: 10
+  duration_hours: 24
+
+ingest:
+  cudf:
+    spill_enabled: true
+    spill_on_demand: false
+  fallback_cpu: true
+
+inference:
+  model_id: meta/llama3-8b-instruct
+  batch_sizes: [1, 8, 32, 64, 128]
+  max_new_tokens: 128
+  top_p: 1.0
+  frequency_penalty: 0.0
+  temperature: 0.0
+  warmup_runs: 2
+  runs_per_batch: 10
+  collect_metrics: true
+
+deploy:
+  nim:
+    base_url: http://localhost:8000
+    chat_completions_path: /v1/chat/completions
+    model: meta/llama3-8b-instruct
+    max_tokens: 256
+    top_p: 1.0
+    frequency_penalty: 0.0
+    stream: false
+  gke:
+    cluster_name: nim-demo
+    namespace: nim
+    gpu_type: nvidia-l4
+    gpu_count: 1
+
+query:
+  max_context_rows: 1000
+  summarize_results: true
