@@ -13,6 +13,10 @@ venv/
 # Environment
 .env
 
+# Secrets / API keys (never commit)
+nv_api_key
+*_api_key
+
 # Data artifacts
 data/synthetic/*.parquet
 data/synthetic/*.csv
