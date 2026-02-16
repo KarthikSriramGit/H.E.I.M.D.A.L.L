@@ -4,13 +4,22 @@ A pipeline for robotics and autonomous systems that turns fleet telemetry into n
 
 ## Run on Colab
 
+### 1. Configure runtime (required before running)
+
+1. Open a notebook from the links below.
+2. Go to **Runtime > Change runtime type**.
+3. Set **Hardware accelerator** to **GPU** (T4).
+4. Click **Save**.
+
 | Notebook | Description |
 |----------|-------------|
-| [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/Project-Insight/blob/main/notebooks/01_data_ingest_benchmark.ipynb) | cuDF + UVM loading, pandas vs cuDF benchmark |
-| [02 Inference Pipeline](https://colab.research.google.com/github/KarthikSriramGit/Project-Insight/blob/main/notebooks/02_inference_pipeline.ipynb) | Format selection, TinyLlama inference |
+| [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/Project-Insight/blob/main/notebooks/01_data_ingest_benchmark.ipynb) | cuDF + UVM loading, pandas vs cuDF benchmark (GPU recommended) |
+| [02 Inference Pipeline](https://colab.research.google.com/github/KarthikSriramGit/Project-Insight/blob/main/notebooks/02_inference_pipeline.ipynb) | Format selection, TinyLlama inference (GPU required) |
 | [03 Query Telemetry](https://colab.research.google.com/github/KarthikSriramGit/Project-Insight/blob/main/notebooks/03_query_telemetry.ipynb) | Full pipeline: retrieve data, NIM summarization |
 
-Open any notebook and run all cells. Use **Runtime > Change runtime type > GPU** for faster execution.
+### 2. Run all cells
+
+After configuring the runtime, run the cells from top to bottom.
 
 ## Inspiration
 
