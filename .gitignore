@@ -15,6 +15,7 @@ venv/
 
 # Secrets / API keys (never commit)
 nv_api_key
+nv_api_key.txt
 *_api_key
 
 # Data artifacts

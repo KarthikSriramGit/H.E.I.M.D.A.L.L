@@ -52,10 +52,16 @@ python data/synthetic/generate_telemetry.py --rows 5000000 --output-dir data/syn
 
 ### Deploy NIM on GKE
 
-1. Set environment variables: `PROJECT_ID`, `ZONE`, `NGC_CLI_API_KEY`
-2. Run `src/deploy/gke/cluster_setup.sh`
-3. Run `src/deploy/gke/deploy_nim.sh`
-4. Port-forward: `kubectl port-forward service/my-nim-nim-llm 8000:8000 -n nim`
+1. Create `nv_api_key.txt` in the project root with your NGC API key (from [ngc.nvidia.com](https://ngc.nvidia.com) Setup). This file is in `.gitignore` and must not be committed.
+2. Set environment variables: `PROJECT_ID`, `ZONE`, and `NGC_CLI_API_KEY` (or load from `nv_api_key.txt`).
+3. Run `src/deploy/gke/cluster_setup.sh`
+4. Run `src/deploy/gke/deploy_nim.sh`
+5. Port-forward: `kubectl port-forward service/my-nim-nim-llm 8000:8000 -n nim`
+
+**PowerShell (load NGC key from `nv_api_key.txt`; run from project root):**
+```powershell
+$env:NGC_CLI_API_KEY = (Get-Content "nv_api_key.txt" -Raw).Trim()
+```
 
 ## Usage
 
