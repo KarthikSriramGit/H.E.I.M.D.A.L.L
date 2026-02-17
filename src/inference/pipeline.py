@@ -109,6 +109,7 @@ class InferencePipeline:
         """
         max_tok = max_new_tokens if max_new_tokens is not None else self.max_new_tokens
         enc = self._tokenize(prompts)
+        prompt_len = enc["input_ids"].shape[1]
 
         with torch.inference_mode():
             generated = self.model.generate(
@@ -117,4 +118,7 @@ class InferencePipeline:
                 max_new_tokens=max_tok,
                 do_sample=False,
             )
-        return self._postprocess(generated)
+
+        # Slice off the prompt tokens so output contains only the generated answer
+        new_tokens = generated[:, prompt_len:]
+        return self._postprocess(new_tokens)

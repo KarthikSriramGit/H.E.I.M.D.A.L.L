@@ -16,7 +16,7 @@ venv/
 # Secrets / API keys (never commit)
 nv_api_key
 nv_api_key.txt
-hk_token.txt
+hf_token.txt
 *_api_key
 *_token.txt
 
