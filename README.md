@@ -172,7 +172,6 @@ gcloud container clusters delete nim-demo --zone=$ZONE --project=$PROJECT_ID --q
 | [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/01_data_ingest_benchmark.ipynb) | cuDF + UVM loading, pandas vs cuDF benchmark (GPU recommended) |
 | [02 Inference Pipeline](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/02_inference_pipeline.ipynb) | Format selection, Gemma 2 2B local inference, latency plots (GPU + HF token) |
 | [03 Query Telemetry](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/03_query_telemetry.ipynb) | Full pipeline: retrieve data, NIM summarization, latency plots (requires NIM on GKE) |
-| [04 Compare Local vs NIM](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/04_compare_local_vs_nim.ipynb) | Runs same queries on both; side-by-side latency, response length, answers |
 
 ## Architecture
 

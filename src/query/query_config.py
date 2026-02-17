@@ -1,5 +1,5 @@
 """
-Shared query configuration for notebooks 02, 03, and 04 (comparison).
+Shared query configuration for notebooks 02 and 03.
 
 Each entry: query, optional vehicle_ids, sensor_type, brake_threshold, skip_data.
 Use skip_data=True for general-knowledge questions (no telemetry context).
