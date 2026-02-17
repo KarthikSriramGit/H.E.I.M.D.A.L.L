@@ -94,7 +94,11 @@ class InferencePipeline:
         max_new_tokens: Optional[int] = None,
     ) -> list[str]:
         """
-        Full pipeline: tokenize, pad, decode, detokenize.
+        Full pipeline: tokenize, pad, generate, detokenize.
+
+        Uses model.generate() with KV caching for memory-efficient inference.
+        The manual _greedy_decode method is kept above for educational reference
+        (Course 2: showing the greedy decoding loop step by step).
 
         Args:
             prompts: List of text prompts.
@@ -106,9 +110,11 @@ class InferencePipeline:
         max_tok = max_new_tokens if max_new_tokens is not None else self.max_new_tokens
         enc = self._tokenize(prompts)
 
-        generated = self._greedy_decode(
-            enc["input_ids"],
-            enc["attention_mask"],
-            max_tok,
-        )
+        with torch.inference_mode():
+            generated = self.model.generate(
+                input_ids=enc["input_ids"],
+                attention_mask=enc["attention_mask"],
+                max_new_tokens=max_tok,
+                do_sample=False,
+            )
         return self._postprocess(generated)
