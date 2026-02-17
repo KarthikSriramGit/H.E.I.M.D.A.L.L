@@ -121,6 +121,7 @@ class TelemetryQueryEngine:
         start_ns: Optional[int] = None,
         end_ns: Optional[int] = None,
         sensor_type: Optional[str] = None,
+        brake_threshold: Optional[float] = None,
     ) -> str:
         """
         Execute natural-language query over telemetry.
@@ -134,6 +135,7 @@ class TelemetryQueryEngine:
             start_ns=start_ns,
             end_ns=end_ns,
             sensor_type=sensor_type,
+            brake_threshold=brake_threshold,
         )
         context = self._data_to_context(df)
 
