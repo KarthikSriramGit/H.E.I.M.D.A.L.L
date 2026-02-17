@@ -183,6 +183,43 @@ Synthetic Generator  -->  cuDF + UVM Loader  -->       Format Selector
                          Query Engine  <--  NIM Client  <--  NIM on GKE
 ```
 
+## Results & Takeaways
+
+Benchmark results from running the notebooks on Colab with a T4 GPU (notebook 01, 02) and NIM on GKE (notebook 03).
+
+### 1. Data ingest: pandas vs cuDF (2M rows)
+
+| Backend | Operation | Time (s) | Memory (MB) |
+|---------|-----------|----------|-------------|
+| pandas  | load      | 0.88     | 105.5       |
+| pandas  | groupby   | 0.14     | 62.8        |
+| pandas  | filter    | 0.03     | 12.6        |
+| pandas  | sort      | 0.36     | 534.1       |
+| cuDF    | load      | 0.17     | 0.2         |
+| cuDF    | groupby   | 0.01     | 0.03        |
+| cuDF    | filter    | 0.02     | 0.2         |
+| cuDF    | sort      | 0.03     | 0.2         |
+
+![pandas vs cuDF benchmark](docs/assets/01_benchmark_pandas_vs_cudf.png)
+
+**Takeaway:** cuDF gives ~5× faster load and ~10–13× faster groupby/sort, with negligible host memory (data stays in GPU VRAM via UVM spill).
+
+### 2. Local inference: Gemma 2 2B (notebook 02)
+
+Natural-language answers to telemetry queries on a T4 GPU. Typical run: ~21s total for 5 queries (~4.2s avg latency).
+
+![Local Gemma 2 2B inference](docs/assets/02_inference_local_gemma.png)
+
+**Takeaway:** Local GGUF inference works for low-latency, offline telemetry Q&A. Good for prototyping; heavier workloads may need cloud scaling.
+
+### 3. Full pipeline: NIM on GKE (notebook 03)
+
+Same queries via Llama 3 8B on NVIDIA NIM (L4 on GKE). Longer answers, higher latency due to model size and network.
+
+![NIM Llama 3 8B on GKE](docs/assets/03_query_nim.png)
+
+**Takeaway:** NIM on GKE scales inference for production. Use notebook 02 for fast local iteration and notebook 03 for production-style deployment.
+
 ## Inspiration
 
 1. [Deploy Faster Generative AI models with NVIDIA NIM on GKE](https://developers.google.com/learn/pathways/deploy-faster-gen-ai-models-nvidia-gke)
