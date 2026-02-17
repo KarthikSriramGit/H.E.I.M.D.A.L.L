@@ -1,8 +1,12 @@
 """
-Benchmark: pandas vs cuDF for telemetry loading and analytics. Measures wall-clock time, peak memory, and operation throughput for load, groupby, filter, sort.
+Benchmark: pandas vs cuDF vs cudf.pandas for telemetry loading and analytics.
+
+Measures wall-clock time, peak memory, and operation throughput for load, groupby, filter, sort.
+cudf.pandas is RAPIDS' drop-in pandas API that runs on GPU with zero code change.
 """
 
 import gc
+import sys
 import time
 from pathlib import Path
 from typing import Any, Callable, Optional, Union
@@ -15,6 +19,13 @@ try:
     CUDF_AVAILABLE = True
 except ImportError:
     CUDF_AVAILABLE = False
+
+try:
+    import cudf.pandas as _cudf_pandas_mod
+
+    CUDF_PANDAS_AVAILABLE = True
+except ImportError:
+    CUDF_PANDAS_AVAILABLE = False
 
 
 def _measure(
@@ -61,30 +72,41 @@ def load_cudf(path: Path, spill: bool = True) -> "cudf.DataFrame":
     return cudf.read_csv(path)
 
 
+def _load_cudf_pandas(path: Path, spill: bool = True):
+    """Load with cudf.pandas (pandas API on GPU). Must be called after cudf.pandas.install()."""
+    if spill and CUDF_AVAILABLE:
+        cudf.set_option("spill", spill)
+    pd_gpu = sys.modules.get("pandas")
+    if path.suffix.lower() in (".parquet", ".pq"):
+        return pd_gpu.read_parquet(path)
+    return pd_gpu.read_csv(path)
+
+
 def run_benchmark(
     path: Union[str, Path],
     operations: Optional[list[str]] = None,
     spill: bool = True,
-) -> dict[str, dict[str, float]]:
+) -> dict[str, dict[str, dict[str, float]]]:
     """
-    Run pandas vs cuDF benchmark on telemetry file.
+    Run pandas vs cuDF vs cudf.pandas benchmark on telemetry file.
 
     Args:
         path: Path to Parquet or CSV.
         operations: List of ops to benchmark: "load", "groupby", "filter", "sort".
                    Default all.
-        spill: Enable cuDF UVM spill.
+        spill: Enable cuDF UVM spill (for cuDF and cudf.pandas).
 
     Returns:
-        Dict mapping backend ("pandas", "cudf") to dict of operation -> {time_s, memory_mb}.
+        Dict mapping backend ("pandas", "cudf", "cudf_pandas") to dict of operation -> {time_s, memory_mb}.
     """
     path = Path(path)
     if not path.exists():
         raise FileNotFoundError(f"File not found: {path}")
 
     operations = operations or ["load", "groupby", "filter", "sort"]
-    results: dict[str, dict[str, float]] = {"pandas": {}, "cudf": {}}
+    results: dict[str, dict[str, dict[str, float]]] = {"pandas": {}, "cudf": {}, "cudf_pandas": {}}
 
+    # 1. pandas (CPU baseline) - run first before cudf.pandas patches pandas
     def _pandas_load():
         return load_pandas(path)
 
@@ -115,38 +137,74 @@ def run_benchmark(
     del df_pd
     gc.collect()
 
-    if not CUDF_AVAILABLE:
-        return results
+    # 2. cuDF (explicit GPU API)
+    if CUDF_AVAILABLE:
+        def _cudf_load():
+            return load_cudf(path, spill=spill)
 
-    def _cudf_load():
-        return load_cudf(path, spill=spill)
+        elapsed, mem, df_cu = _measure(_cudf_load)
+        results["cudf"]["load"] = {"time_s": elapsed, "memory_mb": mem}
 
-    elapsed, mem, df_cu = _measure(_cudf_load)
-    results["cudf"]["load"] = {"time_s": elapsed, "memory_mb": mem}
+        if "groupby" in operations and "vehicle_id" in df_cu.columns:
+            def _cu_groupby():
+                return df_cu.groupby("vehicle_id")["brake_pressure_pct"].agg(["max", "mean"])
 
-    if "groupby" in operations and "vehicle_id" in df_cu.columns:
-        def _cu_groupby():
-            return df_cu.groupby("vehicle_id")["brake_pressure_pct"].agg(["max", "mean"])
+            elapsed, mem, _ = _measure(_cu_groupby)
+            results["cudf"]["groupby"] = {"time_s": elapsed, "memory_mb": mem}
 
-        elapsed, mem, _ = _measure(_cu_groupby)
-        results["cudf"]["groupby"] = {"time_s": elapsed, "memory_mb": mem}
+        if "filter" in operations and "brake_pressure_pct" in df_cu.columns:
+            def _cu_filter():
+                return df_cu[df_cu["brake_pressure_pct"] > 90]
 
-    if "filter" in operations and "brake_pressure_pct" in df_cu.columns:
-        def _cu_filter():
-            return df_cu[df_cu["brake_pressure_pct"] > 90]
+            elapsed, mem, _ = _measure(_cu_filter)
+            results["cudf"]["filter"] = {"time_s": elapsed, "memory_mb": mem}
 
-        elapsed, mem, _ = _measure(_cu_filter)
-        results["cudf"]["filter"] = {"time_s": elapsed, "memory_mb": mem}
+        if "sort" in operations:
+            def _cu_sort():
+                return df_cu.sort_values("timestamp_ns")
 
-    if "sort" in operations:
-        def _cu_sort():
-            return df_cu.sort_values("timestamp_ns")
+            elapsed, mem, _ = _measure(_cu_sort)
+            results["cudf"]["sort"] = {"time_s": elapsed, "memory_mb": mem}
 
-        elapsed, mem, _ = _measure(_cu_sort)
-        results["cudf"]["sort"] = {"time_s": elapsed, "memory_mb": mem}
+        del df_cu
+        gc.collect()
 
-    del df_cu
-    gc.collect()
+    # 3. cudf.pandas (pandas API on GPU) - install patches pandas for remainder of process
+    if CUDF_PANDAS_AVAILABLE and CUDF_AVAILABLE:
+        _cudf_pandas_mod.install()
+        if spill:
+            cudf.set_option("spill", spill)
+        pd_gpu = sys.modules["pandas"]
+
+        def _cudf_pandas_load():
+            return _load_cudf_pandas(path, spill=spill)
+
+        elapsed, mem, df_cp = _measure(_cudf_pandas_load)
+        results["cudf_pandas"]["load"] = {"time_s": elapsed, "memory_mb": mem}
+
+        if "groupby" in operations and "vehicle_id" in df_cp.columns:
+            def _cp_groupby():
+                return df_cp.groupby("vehicle_id")["brake_pressure_pct"].agg(["max", "mean"])
+
+            elapsed, mem, _ = _measure(_cp_groupby)
+            results["cudf_pandas"]["groupby"] = {"time_s": elapsed, "memory_mb": mem}
+
+        if "filter" in operations and "brake_pressure_pct" in df_cp.columns:
+            def _cp_filter():
+                return df_cp[df_cp["brake_pressure_pct"] > 90]
+
+            elapsed, mem, _ = _measure(_cp_filter)
+            results["cudf_pandas"]["filter"] = {"time_s": elapsed, "memory_mb": mem}
+
+        if "sort" in operations:
+            def _cp_sort():
+                return df_cp.sort_values("timestamp_ns")
+
+            elapsed, mem, _ = _measure(_cp_sort)
+            results["cudf_pandas"]["sort"] = {"time_s": elapsed, "memory_mb": mem}
+
+        del df_cp
+        gc.collect()
 
     return results
 

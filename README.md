@@ -43,7 +43,7 @@ A telemetry-to-insight pipeline for robotics and autonomous systems. Turns fleet
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  New to the project?                                            │
-│  → Start with Notebook 01 (Data Ingest) to see cuDF in action   │
+│  → Start with Notebook 01 (Data Ingest pandas/cuDF/cudf.pandas) │
 └─────────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
@@ -72,7 +72,7 @@ A telemetry-to-insight pipeline for robotics and autonomous systems. Turns fleet
 
 | Notebook | What it does | Requirements |
 |----------|--------------|--------------|
-| [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/01_data_ingest_benchmark.ipynb) | cuDF + UVM loading, pandas vs cuDF benchmark | GPU (T4) |
+| [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/01_data_ingest_benchmark.ipynb) | cuDF + UVM loading, pandas vs cuDF vs cudf.pandas benchmark | GPU (T4) |
 | [02 Inference Pipeline](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/02_inference_pipeline.ipynb) | Format selection, Gemma 2 2B local inference | GPU + HF token |
 | [03 Query Telemetry](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/03_query_telemetry.ipynb) | Full pipeline with NIM (Llama 3 8B on GKE) | NIM deployed (see below) |
 
@@ -201,11 +201,12 @@ gcloud container clusters delete nim-demo --zone=$ZONE --project=$PROJECT_ID --q
 ## Architecture
 
 ```
-Data Layer               Inference Layer               Deployment Layer
-Synthetic Generator  -->  cuDF + UVM Loader  -->       Format Selector
-                         Benchmark (pandas vs cuDF)    Inference Pipeline
-                                                       Metrics (p50, p90, TTFT)
-                         Query Engine  <--  NIM Client  <--  NIM on GKE
+  Data Layer              Inference Layer                  Deployment Layer
+  ----------------        ----------------                 ----------------
+  Synthetic Generator --> cuDF + UVM Loader ----------->   Format Selector
+                          Benchmark                        Inference Pipeline
+                          (pandas, cuDF, cudf.pandas)      Metrics (p50, p90, TTFT)
+                        Query Engine  <-- NIM Client  <--  NIM on GKE
 ```
 
 ---
@@ -214,22 +215,26 @@ Synthetic Generator  -->  cuDF + UVM Loader  -->       Format Selector
 
 Benchmark results from running the notebooks on Colab with a T4 GPU (notebooks 01, 02) and NIM on GKE (notebook 03).
 
-### 1. Data ingest: pandas vs cuDF (2M rows)
+### 1. Data ingest: pandas vs cuDF vs cudf.pandas (2M rows)
 
-| Backend | Operation | Time (s) | Memory (MB) |
-|---------|-----------|----------|-------------|
-| pandas  | load      | 0.88     | 105.5       |
-| pandas  | groupby   | 0.14     | 62.8        |
-| pandas  | filter    | 0.03     | 12.6        |
-| pandas  | sort      | 0.36     | 534.1       |
-| cuDF    | load      | 0.17     | 0.2         |
-| cuDF    | groupby   | 0.01     | 0.03        |
-| cuDF    | filter    | 0.02     | 0.2         |
-| cuDF    | sort      | 0.03     | 0.2         |
+| Backend     | Operation | Time (s) | Memory (MB) |
+|-------------|-----------|----------|-------------|
+| pandas      | load      | 0.88     | 105.5       |
+| pandas      | groupby   | 0.14     | 62.8        |
+| pandas      | filter    | 0.03     | 12.6        |
+| pandas      | sort      | 0.36     | 534.1       |
+| cuDF        | load      | 0.17     | 0.2         |
+| cuDF        | groupby   | 0.01     | 0.03        |
+| cuDF        | filter    | 0.02     | 0.2         |
+| cuDF        | sort      | 0.03     | 0.2         |
+| cudf.pandas | load      | ~0.17    | ~0.2        |
+| cudf.pandas | groupby   | ~0.01    | ~0.03       |
+| cudf.pandas | filter    | ~0.02    | ~0.2        |
+| cudf.pandas | sort      | ~0.03    | ~0.2        |
 
-![pandas vs cuDF benchmark](docs/assets/01_benchmark_pandas_vs_cudf.png)
+![pandas vs cuDF vs cudf.pandas benchmark](docs/assets/01_benchmark_pandas_vs_cudf.png)
 
-**Takeaway:** cuDF gives ~5× faster load and ~10–13× faster groupby/sort, with negligible host memory (data stays in GPU VRAM via UVM spill).
+**Takeaway:** cuDF gives ~5× faster load and ~10–13× faster groupby/sort, with negligible host memory (data stays in GPU VRAM via UVM spill). **cudf.pandas** achieves similar GPU performance using the same pandas API—zero code change required. Use cuDF for explicit control, cudf.pandas to accelerate existing pandas code.
 
 ### 2. Local inference: Gemma 2 2B (notebook 02)
 

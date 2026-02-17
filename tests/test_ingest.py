@@ -18,6 +18,7 @@ from src.ingest.telemetry_schema import (
     get_columns_for_sensor,
 )
 from src.ingest.cudf_loader import load_telemetry, filter_by_time_range, filter_by_vehicle
+from src.ingest.benchmark_loader import run_benchmark, benchmark_to_dataframe
 from data.synthetic.generate_telemetry import generate_telemetry, _ensure_full_schema
 
 
@@ -93,3 +94,21 @@ def test_filter_by_vehicle():
     filtered = filter_by_vehicle(df, ["V1", "V3"])
     assert len(filtered) == 3
     assert set(filtered["vehicle_id"].unique()) == {"V1", "V3"}
+
+
+def test_run_benchmark():
+    """Benchmark runs and returns pandas at minimum; cuDF/cudf.pandas when available."""
+    df = generate_telemetry(n_rows=1000, vehicle_count=3)
+    df = _ensure_full_schema(df)
+    with tempfile.NamedTemporaryFile(suffix=".parquet", delete=False) as f:
+        path = f.name
+    try:
+        df.to_parquet(path, index=False)
+        results = run_benchmark(path)
+        assert "pandas" in results
+        assert all(op in results["pandas"] for op in ["load", "groupby", "filter", "sort"])
+        bm_df = benchmark_to_dataframe(results)
+        assert "backend" in bm_df.columns and "operation" in bm_df.columns
+        assert len(bm_df[bm_df["backend"] == "pandas"]) == 4
+    finally:
+        Path(path).unlink(missing_ok=True)
