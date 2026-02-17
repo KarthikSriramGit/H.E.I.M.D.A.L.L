@@ -24,6 +24,7 @@ A telemetry-to-insight pipeline for robotics and autonomous systems. Turns fleet
 - [Troubleshooting](#troubleshooting)
 - [Real Data](#real-data)
 - [Contributing](#contributing)
+- [Code of Conduct](#code-of-conduct)
 
 ---
 
@@ -335,7 +336,18 @@ See [data/README_data_sources.md](data/README_data_sources.md) for a plan to gat
 
 Contributions are welcome. Areas: adapters for nuScenes/KITTI, ROS2 bag-to-Parquet scripts, NIM prompt templates, benchmark results on different GPU configurations.
 
-*Repo maintainers: see [docs/GITHUB_SETUP.md](docs/GITHUB_SETUP.md) for description, tags, and pathways to grow visibility.*
+---
+
+## Code of Conduct
+
+This project adheres to a code of conduct that all contributors are expected to follow.
+
+- Be respectful and inclusive. Welcome newcomers and diverse perspectives.
+- Focus on constructive feedback. Critique ideas, not people.
+- No harassment, trolling, or discriminatory behavior.
+- Help keep the community safe and productive for everyone.
+
+Violations can be reported to the maintainers. We reserve the right to remove contributions or block users who do not follow these guidelines.
 
 ---
 
