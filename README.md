@@ -62,67 +62,73 @@ A telemetry-to-insight pipeline for robotics and autonomous systems. Turns fleet
 ## Quick Start (Notebooks 01 & 02)
 
 1. Open [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/01_data_ingest_benchmark.ipynb) or [02 Inference Pipeline](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/02_inference_pipeline.ipynb) in Colab.
-2. **Runtime → Change runtime type → Hardware accelerator: GPU (T4) → Save.**
+2. **Runtime → Change runtime type → Hardware accelerator: GPU (L4) → Save.**
 3. For **Notebook 02 only:** Add `HF_TOKEN` in Colab Secrets (key icon in sidebar) after accepting the [Gemma license](https://huggingface.co/google/gemma-2-2b-it).
 4. Run all cells.
 
 ---
 
-## Configuring Runtimes for cuDF (NVIDIA L4)
+## Vertex AI Setup (Colab Enterprise + L4)
 
-To run cuDF with an **NVIDIA L4** GPU (similar to the [Accelerated Data Analytics with GPUs](https://codelabs.developers.google.com/accelerated-analytics-with-gpus) Codelab), use one of these approaches.
+Run the data ingest notebook on **Vertex AI** with an **NVIDIA L4** GPU, following the same flow as the [Accelerated Data Analytics with GPUs](https://codelabs.developers.google.com/accelerated-analytics-with-gpus) Codelab.
 
-### Option A: Colab Enterprise (L4 via runtime templates)
+### Step 1: Open Colab Enterprise
 
-Colab Enterprise lets you choose the machine type and GPU. To get an L4:
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. **Navigation menu** → **Vertex AI** → **Colab Enterprise**
 
-1. **Open Colab Enterprise**  
-   [Google Cloud Console](https://console.cloud.google.com) → **Navigation menu** → **Vertex AI** → **Colab Enterprise**
+### Step 2: Create a runtime template
 
-2. **Create a runtime template**  
-   - Click **Runtime templates** → **New template**  
-   - **Display name:** `gpu-l4-template` (or similar)  
-   - **Machine type:** `g2-standard-4` (uses NVIDIA L4)  
-   - **Accelerator:** NVIDIA L4 (if shown; otherwise g2-standard-4 includes it)  
-   - **Idle shutdown:** e.g. 60 minutes  
-   - Click **Create**
+1. Click **Runtime templates** → **New template**
+2. Under **Runtime basics**:
+   - **Display name:** `gpu-l4-template`
+   - **Region:** Your preferred region (e.g. `us-central1`)
+3. Under **Configure compute**:
+   - **Machine type:** `g2-standard-4` (1× NVIDIA L4 GPU)
+   - **Idle shutdown:** 60 minutes (or as desired)
+4. Click **Create**
 
-3. **Start a runtime**  
-   - **Runtimes** → **Create** → choose `gpu-l4-template`  
-   - Wait for it to boot
+> **Note:** If creation fails, [request L4 GPU quota](https://console.cloud.google.com/iam-admin/quotas) for your project. `g2-standard-8` (1× L4, more RAM) and `g2-standard-16` (2× L4) are alternatives.
 
-4. **Use the notebook**  
-   - Import or open your notebook from this repo  
-   - **Connect** → choose your runtime  
-   - Run the setup cell; cuDF will use the L4 GPU
+### Step 3: Start a runtime
 
-**Machine types for L4:** `g2-standard-4` (1× L4, 16 GB RAM), `g2-standard-8` (1× L4, more CPU/RAM), or `g2-standard-16` (2× L4). If creation fails, [request L4 GPU quota](https://console.cloud.google.com/iam-admin/quotas) for your project.
+1. Click **Runtimes** → **Create**
+2. Under **Runtime template**, select `gpu-l4-template`
+3. Click **Create** and wait for the runtime to boot (a few minutes)
 
-### Option B: Regular Colab
+### Step 4: Import the notebook
 
-- **Free:** T4 is usually the default GPU (enough for cuDF and the benchmark).  
-- **Colab Pro/Pro+:** In some regions you may get L4 when available. Choose **Runtime → Change runtime type** and pick the GPU tier you have access to.
+1. Click **My notebooks** → **Import**
+2. Select **URL** and paste:
+   ```
+   https://github.com/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/01_data_ingest_benchmark.ipynb
+   ```
+3. Click **Import**
 
-### Option C: Vertex AI Workbench
+### Step 5: Connect and run
 
-For more control (custom containers, networking):
+1. Open the imported notebook
+2. Click the **Connect** dropdown → **Connect to a Runtime**
+3. Select your `gpu-l4-template` runtime → **Connect**
+4. Run the setup cell (clone + pip install). cuDF will use the L4 GPU.
+5. Run all cells. The benchmark will execute on the L4.
 
-1. [Vertex AI Workbench](https://console.cloud.google.com/vertex-ai/workbench) → **Managed Notebooks**  
-2. Create a notebook with **GPU type: NVIDIA L4**  
-3. Use a PyTorch or custom image that includes `cudf-cu12`
+### cudf.pandas (optional)
 
-### Enabling cudf.pandas (zero-code-change GPU)
-
-Once the runtime has a GPU, enable the pandas accelerator before importing pandas:
+To enable zero-code-change GPU acceleration for pandas:
 
 ```python
 %load_ext cudf.pandas
 import pandas as pd
 ```
 
-Or in a script: `python -m cudf.pandas your_script.py`.
+**Reference:** [Accelerated Data Analytics with Google Cloud and NVIDIA](https://codelabs.developers.google.com/accelerated-analytics-with-gpus) Codelab
 
-**Reference:** [Accelerated Data Analytics with Google Cloud and NVIDIA](https://codelabs.developers.google.com/accelerated-analytics-with-gpus) (Codelab) and [Speed Up Data Analytics on GPUs](https://developers.google.com/learn/pathways/speed-up-data-analytics-GPUs) pathway.
+---
+
+### Alternative: Regular Colab
+
+For quick runs without GCP setup: open the [notebook in Colab](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/01_data_ingest_benchmark.ipynb), then **Runtime → Change runtime type → GPU (L4)** when available (e.g. Colab Pro).
 
 ---
 
@@ -130,7 +136,7 @@ Or in a script: `python -m cudf.pandas your_script.py`.
 
 | Notebook | What it does | Requirements |
 |----------|--------------|--------------|
-| [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/01_data_ingest_benchmark.ipynb) | cuDF + UVM loading, pandas vs cuDF vs cudf.pandas benchmark | GPU (T4) |
+| [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/01_data_ingest_benchmark.ipynb) | cuDF + UVM loading, pandas vs cuDF vs cudf.pandas benchmark | GPU (L4) |
 | [02 Inference Pipeline](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/02_inference_pipeline.ipynb) | Format selection, Gemma 2 2B local inference | GPU + HF token |
 | [03 Query Telemetry](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/03_query_telemetry.ipynb) | Full pipeline with NIM (Llama 3 8B on GKE) | NIM deployed (see below) |
 
@@ -319,7 +325,7 @@ Same queries via Llama 3 8B on NVIDIA NIM (L4 on GKE). Longer answers, higher la
 | Issue | Solution |
 |-------|----------|
 | **cuDF fails to import** | Ensure you selected a **GPU** runtime (T4). cuDF requires a GPU. |
-| **"No GPU" or cuDF falls back to CPU** | Runtime → Change runtime type → GPU (T4) → Save, then restart runtime. |
+| **"No GPU" or cuDF falls back to CPU** | Runtime → Change runtime type → GPU (L4) → Save, then restart runtime. |
 | **Out of memory** | Reduce row count in the generate cell (e.g. `ROWS = 500_000` instead of `2_000_000`). |
 
 ### Notebook 02: Inference Pipeline
