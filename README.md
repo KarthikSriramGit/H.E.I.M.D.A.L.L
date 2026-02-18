@@ -25,7 +25,7 @@ A telemetry-to-insight pipeline for robotics and autonomous systems. Turns fleet
 
 Imagine a fleet of a thousand Waymo autonomous vehicles, Tesla Optimus units, or similar—each generating streams of telemetry. You need to identify which units had anomalous brake events or abnormal IMU measurements last week, or which vehicles exceeded a speed threshold in a given region, or which robots showed elevated motor temperatures during a deployment. Manually querying and cross-referencing that data across hundreds of assets does not scale.
 
-H.E.I.M.D.A.L.L addresses this. You load your fleet telemetry into the pipeline, then ask natural-language questions such as *"Which vehicles had brake pressure above 90% in the last 24 hours?"* or *"List robots with gyro z-axis variance exceeding 0.5."* The system returns responses with vehicle or robot IDs, timestamps, and relevant metrics. This enables rapid insights and operational visibility across large fleets of cars, autonomous vehicles, or robots—without writing complex queries.
+H.E.I.M.D.A.L.L addresses this. You load your fleet telemetry into the pipeline, then ask natural-language questions such as *"Which vehicles had brake pressure above 90% in the last 24 hours?"* or *"List robots with gyro z-axis variance exceeding 0.5."* The system returns responses with vehicle or robot IDs, timestamps, and relevant metrics. This enables rapid insights and operational visibility across large fleets of cars, autonomous vehicles, or robots; without writing complex queries.
 
 ---
 
