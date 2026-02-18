@@ -68,6 +68,64 @@ A telemetry-to-insight pipeline for robotics and autonomous systems. Turns fleet
 
 ---
 
+## Configuring Runtimes for cuDF (NVIDIA L4)
+
+To run cuDF with an **NVIDIA L4** GPU (similar to the [Accelerated Data Analytics with GPUs](https://codelabs.developers.google.com/accelerated-analytics-with-gpus) Codelab), use one of these approaches.
+
+### Option A: Colab Enterprise (L4 via runtime templates)
+
+Colab Enterprise lets you choose the machine type and GPU. To get an L4:
+
+1. **Open Colab Enterprise**  
+   [Google Cloud Console](https://console.cloud.google.com) → **Navigation menu** → **Vertex AI** → **Colab Enterprise**
+
+2. **Create a runtime template**  
+   - Click **Runtime templates** → **New template**  
+   - **Display name:** `gpu-l4-template` (or similar)  
+   - **Machine type:** `g2-standard-4` (uses NVIDIA L4)  
+   - **Accelerator:** NVIDIA L4 (if shown; otherwise g2-standard-4 includes it)  
+   - **Idle shutdown:** e.g. 60 minutes  
+   - Click **Create**
+
+3. **Start a runtime**  
+   - **Runtimes** → **Create** → choose `gpu-l4-template`  
+   - Wait for it to boot
+
+4. **Use the notebook**  
+   - Import or open your notebook from this repo  
+   - **Connect** → choose your runtime  
+   - Run the setup cell; cuDF will use the L4 GPU
+
+**Machine types for L4:** `g2-standard-4` (1× L4, 16 GB RAM), `g2-standard-8` (1× L4, more CPU/RAM), or `g2-standard-16` (2× L4). If creation fails, [request L4 GPU quota](https://console.cloud.google.com/iam-admin/quotas) for your project.
+
+### Option B: Regular Colab
+
+- **Free:** T4 is usually the default GPU (enough for cuDF and the benchmark).  
+- **Colab Pro/Pro+:** In some regions you may get L4 when available. Choose **Runtime → Change runtime type** and pick the GPU tier you have access to.
+
+### Option C: Vertex AI Workbench
+
+For more control (custom containers, networking):
+
+1. [Vertex AI Workbench](https://console.cloud.google.com/vertex-ai/workbench) → **Managed Notebooks**  
+2. Create a notebook with **GPU type: NVIDIA L4**  
+3. Use a PyTorch or custom image that includes `cudf-cu12`
+
+### Enabling cudf.pandas (zero-code-change GPU)
+
+Once the runtime has a GPU, enable the pandas accelerator before importing pandas:
+
+```python
+%load_ext cudf.pandas
+import pandas as pd
+```
+
+Or in a script: `python -m cudf.pandas your_script.py`.
+
+**Reference:** [Accelerated Data Analytics with Google Cloud and NVIDIA](https://codelabs.developers.google.com/accelerated-analytics-with-gpus) (Codelab) and [Speed Up Data Analytics on GPUs](https://developers.google.com/learn/pathways/speed-up-data-analytics-GPUs) pathway.
+
+---
+
 ## Notebooks
 
 | Notebook | What it does | Requirements |
