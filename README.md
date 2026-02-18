@@ -77,13 +77,16 @@ H.E.I.M.D.A.L.L addresses this. You load your fleet telemetry into the pipeline,
 
 ---
 
-## Quick Start (Notebooks 01 & 02) — ~10–20 min
+## Quick Start (Notebooks 01 & 02) — ~5-10 min
 
 **Prerequisites:** Google account (for Colab), GPU runtime (T4 is default; L4 works too).
 
-1. Open [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/01_data_ingest_benchmark.ipynb) (~5 min) or [02 Inference Pipeline](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/02_inference_pipeline.ipynb) (~10 min first run).
-2. **Runtime → Change runtime type → Hardware accelerator: GPU (T4) → Save.** (L4 if available.)
-3. **Notebook 02 only:** Add `HF_TOKEN` in Colab Secrets (key icon in left sidebar) after accepting the [Gemma license](https://huggingface.co/google/gemma-2-2b-it).
+1. Open [01 Data Ingest](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/01_data_ingest_benchmark.ipynb) (~5 min) and [02 Inference Pipeline](https://colab.research.google.com/github/KarthikSriramGit/H.E.I.M.D.A.L.L/blob/main/notebooks/02_inference_pipeline.ipynb) (~10 min first run).
+2. **Runtime → Change runtime type → Hardware accelerator: T4 GPU → Save.** (L4 if available.)
+3. **Notebook 02 only:** Add your Hugging Face token so the notebook can load Gemma 2:
+   - Go to [huggingface.co/google/gemma-2-2b-it](https://huggingface.co/google/gemma-2-2b-it) and accept the license.
+   - Create a token at [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) (click **New token**, set role to **Read**).
+   - In Colab: click the **key icon** in the left sidebar → **Add new secret** → name: `HF_TOKEN`, value: paste your token → **Save**.
 4. Run all cells.
 
 ---
