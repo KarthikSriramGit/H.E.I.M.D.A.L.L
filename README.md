@@ -88,7 +88,7 @@ Run the data ingest notebook on **Vertex AI** with an **NVIDIA L4** GPU, followi
    - **Idle shutdown:** 60 minutes (or as desired)
 4. Click **Create**
 
-> **Note:** If creation fails, [request L4 GPU quota](https://console.cloud.google.com/iam-admin/quotas) for your project. `g2-standard-8` (1× L4, more RAM) and `g2-standard-16` (2× L4) are alternatives.
+> **Note:** If you see `NVIDIA_L4_GPUS exceeded`, your L4 quota is used or too low. See [Troubleshooting: L4 quota](#l4-quota-exceeded) below. `g2-standard-8` (1× L4) and `g2-standard-16` (2× L4) are alternatives if you have quota.
 
 ### Step 3: Start a runtime
 
@@ -324,9 +324,19 @@ Same queries via Llama 3 8B on NVIDIA NIM (L4 on GKE). Longer answers, higher la
 
 | Issue | Solution |
 |-------|----------|
-| **cuDF fails to import** | Ensure you selected a **GPU** runtime (T4). cuDF requires a GPU. |
-| **"No GPU" or cuDF falls back to CPU** | Runtime → Change runtime type → GPU (L4) → Save, then restart runtime. |
+| **L4 quota exceeded** | See [L4 quota exceeded](#l4-quota-exceeded) below. |
+| **cuDF fails to import** | Ensure you selected a **GPU** runtime (L4 or T4). cuDF requires a GPU. |
+| **"No GPU" or cuDF falls back to CPU** | Runtime → Change runtime type → GPU (L4 or T4) → Save, then restart runtime. |
 | **Out of memory** | Reduce row count in the generate cell (e.g. `ROWS = 500_000` instead of `2_000_000`). |
+
+#### L4 quota exceeded
+
+If you see `Quota 'NVIDIA_L4_GPUS' exceeded. Limit: 1.0 in region us-central1`:
+
+1. **Free up quota:** Stop or delete any existing Colab Enterprise runtimes or other L4 instances in that region.
+2. **Try another region:** Create the runtime template in a different region (e.g. `us-east1`, `europe-west1`) where you may have quota. See [L4 availability](https://cloud.google.com/compute/docs/gpus/regions-zones).
+3. **Request more quota:** Go to [Quotas](https://console.cloud.google.com/iam-admin/quotas) → filter by `NVIDIA_L4_GPUS` → select your project and region → **Edit quotas** to request an increase. Approval can take 1–2 business days.
+4. **Use T4 instead:** Create a template with machine type `n1-standard-4` and **Attach GPU: NVIDIA Tesla T4** (1). T4 works with cuDF; the notebook runs unchanged. Then import and connect as usual.
 
 ### Notebook 02: Inference Pipeline
 
