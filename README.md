@@ -334,8 +334,16 @@ Same queries via Llama 3 8B on NVIDIA NIM (L4 on GKE). Longer answers, higher la
 If you see `Quota 'NVIDIA_L4_GPUS' exceeded. Limit: 1.0 in region us-central1`:
 
 1. **Free up quota:** Stop or delete any existing Colab Enterprise runtimes or other L4 instances in that region.
-2. **Try another region:** Create the runtime template in a different region (e.g. `us-east1`, `europe-west1`) where you may have quota. See [L4 availability](https://cloud.google.com/compute/docs/gpus/regions-zones).
-3. **Request more quota:** Go to [Quotas](https://console.cloud.google.com/iam-admin/quotas) → filter by `NVIDIA_L4_GPUS` → select your project and region → **Edit quotas** to request an increase. Approval can take 1–2 business days.
+2. **Request more L4 quota (e.g. Iowa / us-central1):**
+   - Go to [IAM & Admin → Quotas](https://console.cloud.google.com/iam-admin/quotas)
+   - In the filter box, enter `NVIDIA_L4_GPUS`
+   - Select your project and **Location: us-central1** (Iowa)
+   - Check the box next to **NVIDIA L4 GPUs**
+   - Click **Edit quotas** (top of page)
+   - Enter the new limit (e.g. `2` if you want one more)
+   - Add a short justification (e.g. "Need additional L4 for Colab Enterprise data analytics workloads")
+   - Click **Submit**. Google typically reviews within 1–2 business days.
+3. **Try another region:** Create the runtime template in a different region (e.g. `us-east1`, `europe-west1`) where you may have quota. See [L4 availability](https://cloud.google.com/compute/docs/gpus/regions-zones).
 4. **Use T4 instead:** Create a template with machine type `n1-standard-4` and **Attach GPU: NVIDIA Tesla T4** (1). T4 works with cuDF; the notebook runs unchanged. Then import and connect as usual.
 
 ### Notebook 02: Inference Pipeline
