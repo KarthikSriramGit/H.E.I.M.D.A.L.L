@@ -277,7 +277,7 @@ gcloud container clusters delete nim-demo --zone=$ZONE --project=$PROJECT_ID --q
 
 ## Results & Takeaways
 
-Benchmark results from running the notebooks on Colab with a T4 GPU (notebooks 01, 02) and NIM on GKE (notebook 03).
+Benchmark results from running the notebooks on Colab with a L4 Cloud Runtime on notebooks 01, T4 GPU on notebook 02 and NIM L4 on GKE on notebook 03.
 
 ### 1. Data ingest: pandas vs cuDF vs cudf.pandas (2M rows)
 
