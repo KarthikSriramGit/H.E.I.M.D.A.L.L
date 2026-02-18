@@ -1,6 +1,7 @@
 <div align="center">
 
 # H.E.I.M.D.A.L.L
+</div>
 
 <p align="center">
   <a href="https://github.com/KarthikSriramGit/H.E.I.M.D.A.L.L/actions/workflows/tests.yml"><img src="https://github.com/KarthikSriramGit/H.E.I.M.D.A.L.L/actions/workflows/tests.yml/badge.svg" alt="tests"></a>
@@ -16,9 +17,7 @@
 
 A telemetry-to-insight pipeline for robotics and autonomous systems. Turns fleet telemetry into natural-language insights via GPU-accelerated data loading (cuDF + UVM), NVIDIA NIM on GKE for LLM inference, and model format selection for production deployment.
 
-*Named after Heimdall, the Norse guardian who sees and hears everything. Like him, this pipeline watches over your fleet telemetry and turns it into insights.*
-
-</div>
+*Named after Heimdall, the Norse guardian watching from above, who sees and hears everything. Like him, this pipeline watches from the "cloud", over your fleet telemetry and turns it into insights.*
 
 ---
 
