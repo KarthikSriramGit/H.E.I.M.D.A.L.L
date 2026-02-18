@@ -77,7 +77,7 @@ H.E.I.M.D.A.L.L addresses this. You load your fleet telemetry into the pipeline,
 
 ---
 
-## Quick Start (Notebooks 01 & 02) — ~5-10 min
+## Quick Start (Notebooks 01 & 02) (~5-10 min)
 
 **Prerequisites:** Google account (for Colab), GPU runtime (T4 is default; L4 works too).
 
