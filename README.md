@@ -425,7 +425,20 @@ See [data/README_data_sources.md](data/README_data_sources.md) for a plan to gat
 
 ## Contributing
 
-Contributions are welcome. Areas: adapters for nuScenes/KITTI, ROS2 bag-to-Parquet scripts, NIM prompt templates, benchmark results on different GPU configurations.
+Contributions are welcome. To keep the codebase safe, **direct pushes to `main` are not allowed**. All changes must go through pull requests (PRs).
+
+### Safe contribution workflow
+
+1. **Fork** the repository to your GitHub account.
+2. **Clone** your fork locally.
+3. **Create a branch** for your change: `git checkout -b feature/your-feature-name`
+4. **Make your changes**, commit, and push to your fork.
+5. **Open a pull request** from your fork’s branch to this repo’s `main`.
+6. **Wait for review**; maintainers will review and merge after approval.
+
+This workflow ensures every change is reviewed before it reaches `main`. Repository branch protection rules enforce this.
+
+**Idea areas:** adapters for nuScenes/KITTI, ROS2 bag-to-Parquet scripts, NIM prompt templates, benchmark results on different GPU configurations.
 
 ---
 
