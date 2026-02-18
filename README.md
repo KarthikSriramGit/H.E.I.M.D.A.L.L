@@ -13,6 +13,10 @@
   <img src="./docs/assets/images/heimdall_banner.png" alt="H.E.I.M.D.A.L.L" width="100%" style="max-width: 1200px" />
 </p>
 
+<p align="center">
+  <img src="./docs/assets/images/heimdall_waymo_banner.png" alt="H.E.I.M.D.A.L.L with Waymo fleet" width="100%" style="max-width: 1200px" />
+</p>
+
 **Heroically Excessive Inference Methodology (for) Data Analytics (on) Large Loads**
 
 A telemetry-to-insight pipeline for robotics and autonomous systems. Turns fleet telemetry into natural-language insights via GPU-accelerated data loading (cuDF + UVM), NVIDIA NIM on GKE for LLM inference, and model format selection for production deployment.
