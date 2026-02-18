@@ -6,6 +6,7 @@ cudf.pandas is RAPIDS' drop-in pandas API that runs on GPU with zero code change
 """
 
 import gc
+import importlib
 import sys
 import time
 from pathlib import Path
@@ -76,7 +77,7 @@ def _load_cudf_pandas(path: Path, spill: bool = True):
     """Load with cudf.pandas (pandas API on GPU). Must be called after cudf.pandas.install()."""
     if spill and CUDF_AVAILABLE:
         cudf.set_option("spill", spill)
-    pd_gpu = sys.modules.get("pandas")
+    pd_gpu = sys.modules.get("pandas") or importlib.import_module("pandas")
     if path.suffix.lower() in (".parquet", ".pq"):
         return pd_gpu.read_parquet(path)
     return pd_gpu.read_csv(path)
@@ -174,7 +175,8 @@ def run_benchmark(
         _cudf_pandas_mod.install()
         if spill:
             cudf.set_option("spill", spill)
-        pd_gpu = sys.modules["pandas"]
+        # import_module ensures we get the patched pandas (Colab/some envs don't set sys.modules["pandas"])
+        pd_gpu = importlib.import_module("pandas")
 
         def _cudf_pandas_load():
             return _load_cudf_pandas(path, spill=spill)
